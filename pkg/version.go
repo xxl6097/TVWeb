@@ -14,25 +14,25 @@ func init() {
 }
 
 var (
-	AppName          string // 应用名称
-	AppVersion       string // 应用版本
-	BuildVersion     string // 编译版本
-	BuildTime        string // 编译时间
-	GoVersion        string // Golang信息
-	DisplayName      string // 服务显示名
-	Description      string // 服务描述信息
-	OsType           string // 操作系统
-	Arch             string // cpu类型
-	Compiler         string // 编译器信息
-	GitRevision      string // Git版本
-	GitBranch        string // Git分支
-	GitTreeState     string // state of git tree, either "clean" or "dirty"
-	GitCommit        string // sha1 from git, output of 4a2ea0514582c5bdf629ad348341970c5ea8fdc6
-	GitVersion       string // semantic version, derived by build scripts
+	AppName          string = "TVWeb"     // 应用名称
+	AppVersion       string = "v0.0.5"    // 应用版本
+	BuildVersion     string               // 编译版本
+	BuildTime        string               // 编译时间
+	GoVersion        string               // Golang信息
+	DisplayName      string = "TVWeb"     // 服务显示名
+	Description      string = "TVWeb - Video Box Web Service" // 服务描述信息
+	OsType           string               // 操作系统
+	Arch             string               // cpu类型
+	Compiler         string               // 编译器信息
+	GitRevision      string               // Git版本
+	GitBranch        string               // Git分支
+	GitTreeState     string               // state of git tree, either "clean" or "dirty"
+	GitCommit        string               // sha1 from git, output of 4a2ea0514582c5bdf629ad348341970c5ea8fdc6
+	GitVersion       string               // semantic version, derived by build scripts
 	GitReleaseCommit string
-	BinName          string // 运行文件名称，包含平台架构
-	GithubUser       string // github用户
-	GithubRepo       string // github项目名称
+	BinName          string               // 运行文件名称，包含平台架构
+	GithubUser       string = "xxl6097"   // github用户
+	GithubRepo       string = "TVWeb"     // github项目名称
 )
 
 // Version 版本信息
