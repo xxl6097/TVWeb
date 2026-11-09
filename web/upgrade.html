@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TVWeb 升级检测</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .version-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .version-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .version-row:last-child {
+      border-bottom: none;
+    }
+
+    .version-label {
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .version-value {
+      color: #212529;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .check-button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+
+    .check-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .check-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .check-button.loading {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .update-notice {
+      background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .update-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .update-details {
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    .release-notes {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 13px;
+    }
+
+    .download-link {
+      display: inline-block;
+      padding: 12px 24px;
+      background: white;
+      color: #00c853;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .download-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .success-notice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 12px;
+      font-weight: 500;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    .error-notice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: #ffebee;
+      color: #c62828;
+      border-radius: 12px;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    .icon {
+      font-size: 24px;
+    }
+
+    @media (max-width: 640px) {
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 TVWeb 升级中心</h1>
+      <p>保持应用最新，体验最佳功能</p>
+    </div>
+
+    <div class="content">
+      <!-- 版本信息卡片 -->
+      <div class="version-card">
+        <div class="version-row">
+          <span class="version-label">当前版本</span>
+          <span class="version-value" id="currentVersion">加载中...</span>
+        </div>
+        <div class="version-row">
+          <span class="version-label">构建时间</span>
+          <span class="version-value" id="buildTime">加载中...</span>
+        </div>
+        <div class="version-row">
+          <span class="version-label">平台架构</span>
+          <span class="version-value" id="osArch">加载中...</span>
+        </div>
+      </div>
+
+      <!-- 检查更新按钮 -->
+      <button class="check-button" id="checkBtn" onclick="checkUpdate()">
+        🔄 检查更新
+      </button>
+
+      <!-- 更新通知区域 -->
+      <div id="updateArea"></div>
+    </div>
+  </div>
+
+  <script>
+    // 加载版本信息
+    async function loadVersion() {
+      try {
+        const res = await fetch('http://localhost:8091/api/version');
+        const data = await res.json();
+
+        document.getElementById('currentVersion').textContent = data.appVersion || 'Unknown';
+        document.getElementById('buildTime').textContent = data.buildTime || 'Unknown';
+        document.getElementById('osArch').textContent = `${data.osType}/${data.arch}`;
+      } catch (err) {
+        console.error('获取版本信息失败:', err);
+        document.getElementById('currentVersion').textContent = 'v0.0.5';
+        document.getElementById('buildTime').textContent = 'Unknown';
+        document.getElementById('osArch').textContent = 'Unknown';
+      }
+    }
+
+    // 检查更新
+    async function checkUpdate() {
+      const btn = document.getElementById('checkBtn');
+      const updateArea = document.getElementById('updateArea');
+
+      btn.disabled = true;
+      btn.classList.add('loading');
+      btn.textContent = '检查中...';
+      updateArea.innerHTML = '';
+
+      try {
+        const res = await fetch('http://localhost:8091/api/upgrade/check');
+        const data = await res.json();
+
+        if (data.error) {
+          updateArea.innerHTML = `
+            <div class="error-notice">
+              <span class="icon">⚠️</span>
+              <span>${data.error}</span>
+            </div>
+          `;
+        } else if (data.hasUpdate && data.releaseNote) {
+          const notes = data.releaseNote.notes.substring(0, 300);
+          updateArea.innerHTML = `
+            <div class="update-notice">
+              <div class="update-header">
+                <span class="icon">🎉</span>
+                <span>发现新版本</span>
+              </div>
+              <div class="update-details">
+                <p><strong>最新版本：</strong>${data.releaseNote.version}</p>
+                <p><strong>发布时间：</strong>${data.releaseNote.publishedAt}</p>
+                <div class="release-notes">
+                  <strong>更新说明：</strong><br>
+                  ${notes}${notes.length >= 300 ? '...' : ''}
+                </div>
+              </div>
+              <a href="${data.releaseNote.pageUrl}" target="_blank" class="download-link">
+                查看完整更新说明 →
+              </a>
+            </div>
+          `;
+        } else {
+          updateArea.innerHTML = `
+            <div class="success-notice">
+              <span class="icon">✅</span>
+              <span>已是最新版本，无需更新</span>
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('检查更新失败:', err);
+        updateArea.innerHTML = `
+          <div class="error-notice">
+            <span class="icon">⚠️</span>
+            <span>检查更新失败，请稍后重试</span>
+          </div>
+        `;
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.textContent = '🔄 检查更新';
+      }
+    }
+
+    // 页面加载时获取版本信息
+    window.addEventListener('load', loadVersion);
+  </script>
+</body>
+</html>
