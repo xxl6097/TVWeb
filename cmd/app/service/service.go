@@ -1,9 +1,13 @@
 package service
 
 import (
+	"flag"
 	"fmt"
+	"os"
 
 	"github.com/kardianos/service"
+	tvbox "github.com/xxl6097/TVBoxWeb"
+	"github.com/xxl6097/TVWeb/pkg"
 	"github.com/xxl6097/glog/pkg/z"
 	"github.com/xxl6097/go-service/pkg/gs/igs"
 	"go.uber.org/zap"
@@ -23,7 +27,7 @@ func (t *TVWebService) OnConfig() *service.Config {
 
 // OnVersion returns the service version.
 func (t *TVWebService) OnVersion() string {
-	return "0.0.4"
+	return pkg.AppVersion
 }
 
 // OnRun starts the TVWeb service. It reads the port from the signed config.
@@ -40,6 +44,14 @@ func (t *TVWebService) OnRun(svc igs.Service) error {
 	// e.g.: tvbox.Start(cfg.Port)
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
+	dataDir := "data"
+	flag.Parse()
+
+	if err = tvbox.ListenAndServe(addr, tvbox.WithDataDir(dataDir)); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	z.L().Info("TVWeb service started successfully", zap.String("addr", addr))
 	return nil
 }
