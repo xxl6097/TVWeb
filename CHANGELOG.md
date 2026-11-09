@@ -14,6 +14,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WebSocket support
 - Docker support
 
+## [0.0.2] - 2026-11-09
+
+### Added
+- Release verification documentation
+- Complete CI/CD validation report
+- Verification workflow for release process
+
+### Changed
+- Improved project documentation structure
+- Enhanced release verification process
+
+### Documentation
+- Added VERIFICATION_COMPLETE.md with comprehensive release validation
+- Updated README with complete CI/CD workflow information
+- Enhanced WORKFLOWS.md with detailed usage instructions
+- Added CONTRIBUTING.md for community contributions
+
 ## [0.0.1] - 2026-11-09
 
 ### Added
@@ -47,5 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TVBox web functionality is planned for future releases
 - Service implements full IService interface from go-service
 
-[Unreleased]: https://github.com/xxl6097/TVWeb/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/xxl6097/TVWeb/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/xxl6097/TVWeb/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/xxl6097/TVWeb/releases/tag/v0.0.1
