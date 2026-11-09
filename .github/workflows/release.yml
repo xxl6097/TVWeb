@@ -1,0 +1,151 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Get dependencies
+        run: |
+          go mod download
+          go mod verify
+
+      - name: Build binaries
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+          CGO_ENABLED: 0
+        run: |
+          # Get git commit and build time
+          GIT_COMMIT=$(git rev-parse --short HEAD)
+          BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
+          LDFLAGS="-s -w -X github.com/xxl6097/TVWeb/pkg/version.Version=${VERSION} -X github.com/xxl6097/TVWeb/pkg/version.GitCommit=${GIT_COMMIT} -X github.com/xxl6097/TVWeb/pkg/version.BuildTime=${BUILD_TIME}"
+
+          # Create dist directory
+          mkdir -p dist
+
+          # Build for multiple platforms
+          echo "Building for Linux AMD64..."
+          GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/TVWeb-linux-amd64 ./cmd/app/main.go
+
+          echo "Building for Linux ARM64..."
+          GOOS=linux GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/TVWeb-linux-arm64 ./cmd/app/main.go
+
+          echo "Building for macOS AMD64..."
+          GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/TVWeb-darwin-amd64 ./cmd/app/main.go
+
+          echo "Building for macOS ARM64..."
+          GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/TVWeb-darwin-arm64 ./cmd/app/main.go
+
+          echo "Building for Windows AMD64..."
+          GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/TVWeb-windows-amd64.exe ./cmd/app/main.go
+
+          echo "Building for Windows ARM64..."
+          GOOS=windows GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/TVWeb-windows-arm64.exe ./cmd/app/main.go
+
+      - name: Create checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          cat > release_notes.md << 'EOF'
+          ## TVWeb ${{ steps.get_version.outputs.VERSION }}
+
+          ### 🎉 Features
+          - TVWeb service framework with go-service integration
+          - Service lifecycle management (start, stop, shutdown)
+          - Logging system with zap logger
+          - Auto-upgrade and restart mechanism support
+          - Cross-platform support
+
+          ### 📦 Downloads
+          | Platform | Architecture | File |
+          |----------|-------------|------|
+          | Linux | AMD64 | TVWeb-linux-amd64 |
+          | Linux | ARM64 | TVWeb-linux-arm64 |
+          | macOS | Intel (AMD64) | TVWeb-darwin-amd64 |
+          | macOS | Apple Silicon (ARM64) | TVWeb-darwin-arm64 |
+          | Windows | AMD64 | TVWeb-windows-amd64.exe |
+          | Windows | ARM64 | TVWeb-windows-arm64.exe |
+
+          ### 📋 Installation
+
+          **Linux/macOS:**
+          ```bash
+          # Download the appropriate binary
+          wget https://github.com/xxl6097/TVWeb/releases/download/v${{ steps.get_version.outputs.VERSION }}/TVWeb-linux-amd64
+
+          # Make it executable
+          chmod +x TVWeb-linux-amd64
+
+          # Run the service
+          ./TVWeb-linux-amd64
+          ```
+
+          **Windows:**
+          ```powershell
+          # Download TVWeb-windows-amd64.exe and run it
+          .\TVWeb-windows-amd64.exe
+          ```
+
+          ### ✅ Verification
+          Download `checksums.txt` to verify file integrity:
+          ```bash
+          sha256sum -c checksums.txt
+          ```
+
+          ### 🔗 Dependencies
+          - go-service v0.7.87
+          - glog v0.1.96
+          - zap v1.28.0
+
+          ---
+          **Full Changelog**: https://github.com/xxl6097/TVWeb/commits/v${{ steps.get_version.outputs.VERSION }}
+          EOF
+
+          echo "Release notes generated"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ steps.get_version.outputs.VERSION }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            dist/TVWeb-linux-amd64
+            dist/TVWeb-linux-arm64
+            dist/TVWeb-darwin-amd64
+            dist/TVWeb-darwin-arm64
+            dist/TVWeb-windows-amd64.exe
+            dist/TVWeb-windows-arm64.exe
+            dist/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

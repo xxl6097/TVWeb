@@ -1,0 +1,82 @@
+name: Manual Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Platforms to build (comma-separated: linux,darwin,windows)'
+        required: true
+        default: 'linux,darwin,windows'
+      architectures:
+        description: 'Architectures to build (comma-separated: amd64,arm64)'
+        required: true
+        default: 'amd64,arm64'
+
+jobs:
+  build:
+    name: Manual Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Get dependencies
+        run: |
+          go mod download
+          go mod verify
+
+      - name: Build binaries
+        env:
+          CGO_ENABLED: 0
+          PLATFORMS: ${{ github.event.inputs.platforms }}
+          ARCHITECTURES: ${{ github.event.inputs.architectures }}
+        run: |
+          # Get git commit and build time
+          GIT_COMMIT=$(git rev-parse --short HEAD)
+          BUILD_TIME=$(date -u '+%Y-%m-%d_%H:%M:%S')
+          VERSION=$(git describe --tags --always --dirty)
+          LDFLAGS="-s -w -X github.com/xxl6097/TVWeb/pkg/version.Version=${VERSION} -X github.com/xxl6097/TVWeb/pkg/version.GitCommit=${GIT_COMMIT} -X github.com/xxl6097/TVWeb/pkg/version.BuildTime=${BUILD_TIME}"
+
+          # Create dist directory
+          mkdir -p dist
+
+          # Parse platforms and architectures
+          IFS=',' read -ra PLATFORM_ARRAY <<< "$PLATFORMS"
+          IFS=',' read -ra ARCH_ARRAY <<< "$ARCHITECTURES"
+
+          # Build for each combination
+          for OS in "${PLATFORM_ARRAY[@]}"; do
+            for ARCH in "${ARCH_ARRAY[@]}"; do
+              OUTPUT="dist/TVWeb-${OS}-${ARCH}"
+              if [ "$OS" = "windows" ]; then
+                OUTPUT="${OUTPUT}.exe"
+              fi
+
+              echo "Building for $OS/$ARCH..."
+              GOOS=$OS GOARCH=$ARCH go build -ldflags "${LDFLAGS}" -o "$OUTPUT" ./cmd/app/main.go
+
+              if [ $? -eq 0 ]; then
+                echo "✓ Built $OUTPUT"
+              else
+                echo "✗ Failed to build for $OS/$ARCH"
+              fi
+            done
+          done
+
+          # List built files
+          echo "Built files:"
+          ls -lh dist/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tvweb-binaries
+          path: dist/*
+          retention-days: 30
