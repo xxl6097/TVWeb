@@ -1,54 +1,66 @@
 package service
 
 import (
-	"github.com/xxl6097/TVBoxWeb/pkg/tvbox"
+	"github.com/kardianos/service"
 	"github.com/xxl6097/glog/pkg/z"
-	"go.uber.org/zap"
+	"github.com/xxl6097/go-service/pkg/gs/igs"
 )
 
 // TVWebService represents the TVWeb service
 type TVWebService struct {
-	tvbox *tvbox.TVBox
+	// TODO: Add TVBox integration when available
 }
 
-// Start starts the TVWeb service
-func (t *TVWebService) Start() error {
+// OnConfig returns the service configuration
+func (t *TVWebService) OnConfig() *service.Config {
+	return &service.Config{
+		Name:        "TVWebService",
+		DisplayName: "TVWeb Service",
+		Description: "TVWeb - Video Box Web Service",
+	}
+}
+
+// OnVersion returns the service version
+func (t *TVWebService) OnVersion() string {
+	return "0.0.1"
+}
+
+// OnRun starts the service
+func (t *TVWebService) OnRun(svc igs.Service) error {
 	z.L().Info("Starting TVWeb service...")
 
-	// Initialize TVBox
-	var err error
-	t.tvbox, err = tvbox.NewTVBox()
-	if err != nil {
-		z.L().Error("Failed to initialize TVBox", zap.Error(err))
-		return err
-	}
-
-	// Start the TVBox
-	if err := t.tvbox.Start(); err != nil {
-		z.L().Error("Failed to start TVBox", zap.Error(err))
-		return err
-	}
+	// TODO: Initialize and start TVBox when the dependency is available
+	// For now, this is a placeholder implementation
 
 	z.L().Info("TVWeb service started successfully")
 	return nil
 }
 
-// Stop stops the TVWeb service
-func (t *TVWebService) Stop() error {
+// OnStop stops the TVWeb service
+func (t *TVWebService) OnStop() {
 	z.L().Info("Stopping TVWeb service...")
 
-	if t.tvbox != nil {
-		if err := t.tvbox.Stop(); err != nil {
-			z.L().Error("Failed to stop TVBox", zap.Error(err))
-			return err
-		}
-	}
+	// TODO: Stop TVBox when implemented
 
 	z.L().Info("TVWeb service stopped")
-	return nil
 }
 
-// GetName returns the service name
-func (t *TVWebService) GetName() string {
-	return "TVWebService"
+// OnShutdown handles service shutdown
+func (t *TVWebService) OnShutdown() {
+	z.L().Info("Shutting down TVWeb service...")
+}
+
+// GetAny returns service configuration or state
+func (t *TVWebService) GetAny(key string) ([]byte, []string) {
+	return nil, nil
+}
+
+// OnFinish handles service completion
+func (t *TVWebService) OnFinish() {
+	z.L().Info("TVWeb service finished")
+}
+
+// UnInstall uninstalls the service
+func (t *TVWebService) UnInstall() {
+	z.L().Info("Uninstalling TVWeb service...")
 }
