@@ -1,10 +1,7 @@
 package service
 
 import (
-	"context"
-	"flag"
 	"fmt"
-	"net/http"
 	"os"
 
 	"github.com/kardianos/service"
@@ -46,52 +43,26 @@ func (t *TVWebService) OnRun(svc igs.Service) error {
 		cfg = &Config{Port: defaultPort}
 	}
 
-	z.L().Info("Starting TVWeb service", zap.Int("port", cfg.Port))
-
 	addr := fmt.Sprintf(":%d", cfg.Port)
-	dataDir := "data"
-	flag.Parse()
+	z.L().Info("Starting TVWeb service", zap.String("addr", addr))
 
-	if err = runServer(addr, dataDir, svc); err != nil {
+	if err = runServer(addr, svc); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return err
 	}
-
-	z.L().Info("TVWeb service started successfully", zap.String("addr", addr))
 	return nil
 }
 
-func runServer(addr, dataDir string, gs igs.Service) error {
-	// 初始化升级器
+func runServer(addr string, gs igs.Service) error {
 	upgrader := internal.NewUpgrader(gs)
-	upgradeHandler := internal.NewUpgradeHandler(upgrader)
 
-	// 创建自定义 ServeMux 来注册升级 API
-	mux := http.NewServeMux()
+	opts := []tvbox.Option{
+		tvbox.WithDataDir("data"),
+		tvbox.WithUpgrader(upgrader),
+	}
 
-	// 注册升级相关路由
-	upgradeHandler.RegisterRoutes(mux)
-
-	// 启动时检查一次更新
-	go func() {
-		ctx := context.Background()
-		if rel, err := upgrader.Check(ctx); err == nil && rel != nil {
-			z.L().Info("发现新版本", zap.String("version", rel.Version))
-		}
-	}()
-
-	// 启动升级 API 服务器（独立端口）
-	go func() {
-		apiAddr := ":8091"
-		z.L().Info("Upgrade API listening", zap.String("addr", apiAddr))
-		if err := http.ListenAndServe(apiAddr, mux); err != nil {
-			z.L().Error("Upgrade API server failed", zap.Error(err))
-		}
-	}()
-
-	// 启动主服务
-	if err := tvbox.ListenAndServe(addr, tvbox.WithDataDir(dataDir)); err != nil {
-		z.L().Error("Failed to start TVBox server", zap.Error(err))
+	if err := tvbox.ListenAndServe(addr, opts...); err != nil {
+		z.L().Error("TVBox server error", zap.Error(err))
 		return err
 	}
 	return nil
