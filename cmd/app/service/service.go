@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/kardianos/service"
@@ -61,8 +62,15 @@ func (t *TVWebService) OnRun(svc igs.Service) error {
 }
 
 func runServer(addr, dataDir string, gs igs.Service) error {
-	// 初始化升级器（后台定期检查更新）
+	// 初始化升级器
 	upgrader := internal.NewUpgrader(gs)
+	upgradeHandler := internal.NewUpgradeHandler(upgrader)
+
+	// 创建自定义 ServeMux 来注册升级 API
+	mux := http.NewServeMux()
+
+	// 注册升级相关路由
+	upgradeHandler.RegisterRoutes(mux)
 
 	// 启动时检查一次更新
 	go func() {
@@ -72,6 +80,16 @@ func runServer(addr, dataDir string, gs igs.Service) error {
 		}
 	}()
 
+	// 启动升级 API 服务器（独立端口）
+	go func() {
+		apiAddr := ":8091"
+		z.L().Info("Upgrade API listening", zap.String("addr", apiAddr))
+		if err := http.ListenAndServe(apiAddr, mux); err != nil {
+			z.L().Error("Upgrade API server failed", zap.Error(err))
+		}
+	}()
+
+	// 启动主服务
 	if err := tvbox.ListenAndServe(addr, tvbox.WithDataDir(dataDir)); err != nil {
 		z.L().Error("Failed to start TVBox server", zap.Error(err))
 		return err
