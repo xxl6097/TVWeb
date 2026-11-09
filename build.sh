@@ -8,7 +8,7 @@ githubUser="xxl6097"
 githubRepo="TVWeb"
 
 function buildgo() {
-  echo "=====$1,$2,$3,$4,$5,$6"
+  echo "====s=$1,$2,$3,$4,$5,$6"
   builddir=$1
   appname=$2
   version=$3
