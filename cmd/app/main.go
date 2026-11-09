@@ -5,6 +5,9 @@ import (
 	"github.com/xxl6097/glog/pkg/z"
 	"github.com/xxl6097/go-service/pkg/gs"
 	"go.uber.org/zap"
+
+	// Import buffer to register ukey for service signing
+	_ "github.com/xxl6097/go-service/assets/buffer"
 )
 
 func main() {

@@ -14,6 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WebSocket support
 - Docker support
 
+## [0.0.3] - 2026-11-09
+
+### Fixed
+- Fix service installation error by registering ukey buffer
+- Import go-service buffer package to enable service signing
+- Resolve "占位缓冲区未注册" error during service installation
+
+### Technical Details
+- Added import for `github.com/xxl6097/go-service/assets/buffer`
+- This enables the ukey registration required for service signing
+- Fixes installation failures on Linux servers
+
 ## [0.0.2] - 2026-11-09
 
 ### Added
@@ -64,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TVBox web functionality is planned for future releases
 - Service implements full IService interface from go-service
 
-[Unreleased]: https://github.com/xxl6097/TVWeb/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/xxl6097/TVWeb/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/xxl6097/TVWeb/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/xxl6097/TVWeb/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/xxl6097/TVWeb/releases/tag/v0.0.1
