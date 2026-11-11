@@ -46,7 +46,7 @@ func (t *TVWebService) OnRun(svc igs.Service) error {
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	z.L().Info("Starting TVWeb service", zap.String("addr", addr))
 
-	if err = internal.Run(context.Background(), addr, os.Stdout, os.Stderr); err != nil {
+	if err = internal.Run(context.Background(), addr, svc, os.Stdout, os.Stderr); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return err
 	}
