@@ -1,12 +1,11 @@
 ### ✨ 新特性
 
-- Bump TVBoxWeb to v1.8.2：会话 Cookie 支持 Secure（自动探测 HTTPS），登录页显示版本号
+- Bump TVBoxWeb to v1.9.1：MKV 等浏览器不支持的容器走服务端转封装（ffmpeg -c copy 无损换容器，边转边播，支持 seek）
 
 ---
 **修复**：
 
-- 修复 HLS 属性名前缀误匹配导致选档偏低（quality 补 9 组测试）
-- 修复网盘视频播放报「解码失败」——代理未透传 WebDAV 认证导致上游 401，顺带按 MediaError.code 细化错误提示
+- 修复进度条拖不动——pointermove/up 改绑 window，不再依赖元素内捕获；三处进度条改函数式 ref；跳转统一走 applySeek
 
 ---
 ### 🚀 github加速
