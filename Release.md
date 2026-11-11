@@ -1,11 +1,11 @@
 ### ✨ 新特性
 
-- Bump TVBoxWeb to v1.9.1：MKV 等浏览器不支持的容器走服务端转封装（ffmpeg -c copy 无损换容器，边转边播，支持 seek）
+- Bump TVBoxWeb to v1.9.2
 
 ---
 **修复**：
 
-- 修复进度条拖不动——pointermove/up 改绑 window，不再依赖元素内捕获；三处进度条改函数式 ref；跳转统一走 applySeek
+- 修复登录后网盘视频播不了——video 请求带不了 Cookie，改为登录下发媒体令牌走 URL；令牌仅限 /api/proxy 与 /api/remux
 
 ---
 ### 🚀 github加速
