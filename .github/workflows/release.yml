@@ -37,6 +37,6 @@ jobs:
           files: release/packages/*
           draft: false
           prerelease: false
-          generate_release_notes: true
+          body_path: Release.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

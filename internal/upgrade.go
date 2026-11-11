@@ -3,9 +3,6 @@ package internal
 import (
 	"context"
 	"fmt"
-	"io"
-	"net/http"
-	"os"
 	"time"
 
 	tvbox "github.com/xxl6097/TVBoxWeb"
@@ -13,17 +10,18 @@ import (
 	"github.com/xxl6097/glog/pkg/z"
 	"github.com/xxl6097/go-service/pkg/github"
 	"github.com/xxl6097/go-service/pkg/gs/igs"
+	"github.com/xxl6097/go-service/pkg/utils"
 	"go.uber.org/zap"
 )
 
 // Upgrader 实现 tvbox.Upgrader 接口。
-// Check  使用 go-service github.Api 检查新版本（代理感知）。
-// Upgrade 使用带 context/超时的 HTTP 下载，委托 igs.Service.Upgrade() 替换和重启。
+// 使用 go-service 的 GitHub API 检查更新、代理感知并发下载，
+// 最终通过 igs.Service.Upgrade() 完成二进制替换和服务重启。
 type Upgrader struct {
 	gs igs.Service
 }
 
-// Check 检查是否有新版本。nil 表示已是最新，non-nil 表示有更新可用。
+// Check 检查是否有新版本。nil 表示已是最新，non-nil 表示有更新。
 func (u *Upgrader) Check(ctx context.Context) (*tvbox.Release, error) {
 	github.Api().SetName(pkg.GithubUser, pkg.GithubRepo)
 	data, err := github.Api().CheckUpgrade(pkg.BinName)
@@ -42,8 +40,7 @@ func (u *Upgrader) Check(ctx context.Context) (*tvbox.Release, error) {
 	}, nil
 }
 
-// Upgrade 下载新版本并委托 go-service 替换二进制、重启服务。
-// 逐一尝试代理地址，每个地址有独立 5 分钟超时，全部失败才报错。
+// Upgrade 下载新版本并通过 go-service 替换二进制、重启服务。
 func (u *Upgrader) Upgrade(ctx context.Context, rel *tvbox.Release, onProgress func(tvbox.UpgradeProgress)) error {
 	urls := github.Api().GetProxyUrls(rel.DownloadURL)
 
@@ -59,123 +56,28 @@ func (u *Upgrader) Upgrade(ctx context.Context, rel *tvbox.Release, onProgress f
 		Message: rel.Version,
 	})
 
-	// 逐一尝试，每个地址设独立超时；任一成功即停止
-	var filePath string
-	var lastErr error
-	for _, rawURL := range urls {
-		if rawURL == "" {
-			continue
-		}
-		dlCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
-		path, err := downloadWithProgress(dlCtx, rawURL, rel.Size, func(loaded, total int64) {
-			report(tvbox.UpgradeProgress{
-				Stage:   tvbox.StageDownloading,
-				Loaded:  loaded,
-				Total:   total,
-				Message: rel.Version,
-			})
+	// 并发竞速所有镜像地址，返回 "" 表示全部失败
+	fileUri := utils.DownloadFileWithCancelByUrls(urls, func(progress utils.Progress) {
+		report(tvbox.UpgradeProgress{
+			Stage:   tvbox.StageDownloading,
+			Loaded:  progress.Loaded,
+			Total:   progress.Total,
+			Message: rel.Version,
 		})
-		cancel()
-		if err == nil {
-			filePath = path
-			break
-		}
-		lastErr = err
-		z.L().Warn("下载失败，尝试下一个地址", zap.String("url", rawURL), zap.Error(err))
-	}
-
-	if filePath == "" {
-		if lastErr != nil {
-			return fmt.Errorf("所有下载地址均失败：%w", lastErr)
-		}
-		return fmt.Errorf("无可用下载地址")
-	}
-	defer os.Remove(filePath)
-
-	z.L().Debug("升级文件下载完成", zap.String("path", filePath))
-	report(tvbox.UpgradeProgress{
-		Stage:   tvbox.StageReplacing,
-		Message: "已下载，正在替换",
 	})
 
+	if fileUri == "" {
+		z.L().Debug("升级文件下载失败，所有镜像地址均不可用")
+		return fmt.Errorf("下载失败，所有镜像地址均不可用")
+	}
+
+	z.L().Debug("升级文件下载完成", zap.String("path", fileUri))
+	report(tvbox.UpgradeProgress{
+		Stage:   tvbox.StageDone,
+		Message: "已下载并校验通过，正在替换",
+	})
 	// 委托 go-service 完成二进制替换和服务重启
-	return u.gs.Upgrade(ctx, filePath)
-}
-
-// downloadWithProgress 通过 HTTP GET 下载 url 到临时文件，每 200ms 上报一次进度。
-// ctx 可用于取消或超时控制（调用方应设置 WithTimeout）。
-func downloadWithProgress(ctx context.Context, rawURL string, hint int64, onProgress func(loaded, total int64)) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("User-Agent", "TVWeb-upgrade")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("HTTP %d", resp.StatusCode)
-	}
-
-	total := resp.ContentLength
-	if total <= 0 {
-		total = hint // 服务端未返回 Content-Length 时用 release 里的 size 兜底
-	}
-
-	tmp, err := os.CreateTemp("", "tvweb-upgrade-*")
-	if err != nil {
-		return "", err
-	}
-	tmpName := tmp.Name()
-
-	var written int64
-	buf := make([]byte, 32*1024)
-	lastReport := time.Now()
-
-	for {
-		select {
-		case <-ctx.Done():
-			tmp.Close()
-			os.Remove(tmpName)
-			return "", ctx.Err()
-		default:
-		}
-
-		nr, er := resp.Body.Read(buf)
-		if nr > 0 {
-			nw, ew := tmp.Write(buf[:nr])
-			written += int64(nw)
-			if ew != nil {
-				tmp.Close()
-				os.Remove(tmpName)
-				return "", ew
-			}
-			if time.Since(lastReport) >= 200*time.Millisecond {
-				onProgress(written, total)
-				lastReport = time.Now()
-			}
-		}
-		if er == io.EOF {
-			break
-		}
-		if er != nil {
-			tmp.Close()
-			os.Remove(tmpName)
-			return "", er
-		}
-	}
-	tmp.Close()
-
-	// 最后一次完整进度上报
-	onProgress(written, total)
-
-	// 确保可执行
-	_ = os.Chmod(tmpName, 0755)
-	return tmpName, nil
+	return u.gs.Upgrade(ctx, fileUri)
 }
 
 // NewUpgrader 创建 Upgrader，持有 igs.Service 用于最终的文件替换和重启。
