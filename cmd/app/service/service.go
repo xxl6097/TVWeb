@@ -6,7 +6,7 @@ import (
 
 	"github.com/kardianos/service"
 	tvbox "github.com/xxl6097/TVBoxWeb"
-	"github.com/xxl6097/TVWeb/internal"
+	"github.com/xxl6097/TVBoxWeb/githubupgrade"
 	"github.com/xxl6097/TVWeb/pkg"
 	"github.com/xxl6097/glog/pkg/z"
 	"github.com/xxl6097/go-service/pkg/gs/igs"
@@ -34,7 +34,7 @@ func (t *TVWebService) OnVersion() string {
 	return pkg.AppVersion
 }
 
-// OnRun starts the TVWeb service. It reads the port from the signed config.
+// OnRun starts the TVWeb service.
 func (t *TVWebService) OnRun(svc igs.Service) error {
 	t.gs = svc
 	cfg, err := loadConfig()
@@ -46,19 +46,34 @@ func (t *TVWebService) OnRun(svc igs.Service) error {
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	z.L().Info("Starting TVWeb service", zap.String("addr", addr))
 
-	if err = runServer(addr, svc); err != nil {
+	if err = runServer(addr); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return err
 	}
 	return nil
 }
 
-func runServer(addr string, gs igs.Service) error {
-	upgrader := internal.NewUpgrader(gs)
-
+func runServer(addr string) error {
 	opts := []tvbox.Option{
 		tvbox.WithDataDir("data"),
-		tvbox.WithUpgrader(upgrader),
+		// 把 TVWeb 的版本号注入到 TVBoxWeb 的 api.AppVersion，
+		// 供升级检测和界面展示使用
+		tvbox.WithVersion(pkg.AppVersion),
+	}
+
+	// 使用 TVBoxWeb v1.6.0 内置的 GitHub 升级器；
+	// 检查 github.com/xxl6097/TVWeb 的 Release，
+	// 查找名为 yezhen-<os>-<arch> 的资产文件（含 checksums.txt 校验）。
+	up, err := githubupgrade.New(githubupgrade.Options{
+		Owner: pkg.GithubUser,
+		Repo:  pkg.GithubRepo,
+	})
+	if err != nil {
+		z.L().Warn("在线升级未启用", zap.Error(err))
+	} else {
+		opts = append(opts, tvbox.WithUpgrader(up))
+		z.L().Info("在线升级已启用",
+			zap.String("repo", pkg.GithubUser+"/"+pkg.GithubRepo))
 	}
 
 	if err := tvbox.ListenAndServe(addr, opts...); err != nil {
@@ -79,7 +94,6 @@ func (t *TVWebService) OnShutdown() {
 }
 
 // GetAny is called during installation to collect configuration from the user.
-// The returned []byte is embedded into the signed binary; []string are run args.
 func (t *TVWebService) GetAny(binDir string) ([]byte, []string) {
 	return inputConfig(), nil
 }
