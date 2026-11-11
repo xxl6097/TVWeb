@@ -15,13 +15,19 @@ import (
 // Run 启动 TVWeb 服务，参考 go-fs 的 RunCfg 写法：
 //   - ctx 取消时优雅退出
 //   - 服务自行出错时返回错误
-func Run(ctx context.Context, addr string, gs igs.Service, stdout, stderr io.Writer) error {
+func Run(ctx context.Context, addr, user, pass string, gs igs.Service, stdout, stderr io.Writer) error {
 	opts := []tvbox.Option{
 		tvbox.WithDataDir("data"),
 		// 把 TVWeb 版本号写入 TVBoxWeb 内部，供升级检测和界面展示使用
 		tvbox.WithVersion(pkg.AppVersion),
 		// 注入升级器：go-service 代理感知下载 + 委托 igs.Service 替换和重启
 		tvbox.WithUpgrader(NewUpgrader(gs)),
+	}
+
+	// 有用户名密码时启用登录保护（v1.7.0 新增）
+	if user != "" && pass != "" {
+		opts = append(opts, tvbox.WithLogin(user, pass))
+		z.L().Info("登录保护已启用", zap.String("user", user))
 	}
 
 	srv, err := tvbox.New(opts...)
