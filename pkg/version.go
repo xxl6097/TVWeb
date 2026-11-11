@@ -15,7 +15,7 @@ func init() {
 
 var (
 	AppName          string = "TVWeb"     // 应用名称
-	AppVersion       string = "v0.0.22"   // 应用版本
+	AppVersion       string = "v0.0.23"   // 应用版本
 	BuildVersion     string               // 编译版本
 	BuildTime        string               // 编译时间
 	GoVersion        string               // Golang信息
