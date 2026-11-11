@@ -20,7 +20,7 @@ import (
 type Upgrader struct {
 	gs igs.Service
 }
-a'a'
+
 // Check 检查是否有新版本。nil 表示已是最新，non-nil 表示有更新。
 func (u *Upgrader) Check(ctx context.Context) (*tvbox.Release, error) {
 	github.Api().SetName(pkg.GithubUser, pkg.GithubRepo)
