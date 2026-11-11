@@ -1,11 +1,12 @@
 ### ✨ 新特性
 
-- Bump TVBoxWeb to v1.8.0：设置页新增「识别影视」入口（对齐鸿蒙版）
+- Bump TVBoxWeb to v1.8.2：会话 Cookie 支持 Secure（自动探测 HTTPS），登录页显示版本号
 
 ---
 **修复**：
 
-- 修复剧集被按篇章目录拆成多部的问题
+- 修复 HLS 属性名前缀误匹配导致选档偏低（quality 补 9 组测试）
+- 修复网盘视频播放报「解码失败」——代理未透传 WebDAV 认证导致上游 401，顺带按 MediaError.code 细化错误提示
 
 ---
 ### 🚀 github加速
