@@ -35,13 +35,15 @@ function buildgo() {
   binName="-X '${versionDir}.BinName=${filename}'"
   githubUserFlag="-X '${versionDir}.GithubUser=${githubUser}'"
   githubRepoFlag="-X '${versionDir}.GithubRepo=${githubRepo}'"
-  # 同步注入到 TVBoxWeb 内部的 api.AppVersion，
-  # 让 githubupgrade.New() 在运行时拿到正确的版本号做比对
+  # 同步注入到 TVBoxWeb 内部的 api.AppVersion / api.BuildTime，
+  # 让 githubupgrade.New() 在运行时拿到正确的版本号做比对，
+  # 以及让界面"构建时间"显示真实时间（默认值 "unknown"）
   tvboxVersionFlag="-X 'github.com/xxl6097/TVBoxWeb/internal/api.AppVersion=${version}'"
+  tvboxBuildTimeFlag="-X 'github.com/xxl6097/TVBoxWeb/internal/api.BuildTime=$(TZ=Asia/Shanghai date "+%Y-%m-%d %H:%M:%S")'"
 
   env CGO_ENABLED=0 GOOS=${os} GOARCH=${arch} ${flags} \
     go build -trimpath \
-    -ldflags "$ldflags $binName $githubUserFlag $githubRepoFlag $tvboxVersionFlag -linkmode internal" \
+    -ldflags "$ldflags $binName $githubUserFlag $githubRepoFlag $tvboxVersionFlag $tvboxBuildTimeFlag -linkmode internal" \
     -o "${dstFilePath}" "${appdir}"
 
   # TVBoxWeb v1.6.0 的升级器查找固定名称 yezhen-<os>-<arch>，创建对应副本
