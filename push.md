@@ -18,7 +18,7 @@
 ## 步骤 3：提交代码并发布
 - 使用 `git add .` 暂存所有变更
 - 创建 commit，message 格式：`Release vX.X.X: [提炼的新功能和修复的bug]`
-- 创建新 tag，格式：`vX.X.X`（根据语义化版本规则递增，但是要高于当前release版本号）
+- 创建新 tag，格式：`vX.X.X`（每次在github上release版本号上递增）
 - 推送代码和 tag：`git push && git push --tags`
 
 注意：发布的 release notes 会自动使用 Release.md 的内容。

@@ -10,8 +10,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
-github.com/xxl6097/TVBoxWeb v1.9.5 h1:n+ZL8khgDXgvehBnJTNK+7XUgYX+2nsXiGSc6NYPCGA=
-github.com/xxl6097/TVBoxWeb v1.9.5/go.mod h1:8YKV2V5pR0tq7KnTVF3ww32xypWkdWVAszPhFVvZuKY=
+github.com/xxl6097/TVBoxWeb v1.9.6 h1:+YhAwPeKelbkX+6f2EKUlgZFEyfgXe6vpEewobsLbag=
+github.com/xxl6097/TVBoxWeb v1.9.6/go.mod h1:8YKV2V5pR0tq7KnTVF3ww32xypWkdWVAszPhFVvZuKY=
 github.com/xxl6097/glog v0.1.96 h1:TpxXctr61J/M85CLqR7S5cMBKuc8OSdZRa06YlD+Lw0=
 github.com/xxl6097/glog v0.1.96/go.mod h1:ACcixOvbQXtVaVjlU7+K2IXTwaJUNbRlJISeWmGFZJU=
 github.com/xxl6097/go-service v0.7.87 h1:uh6HmxHWBFlbH/STogGwVlLeGaWMlWZRbosnjxqh8lg=
