@@ -1,11 +1,12 @@
 ### ✨ 新特性
 
-- Bump TVBoxWeb to v1.9.2
+- Bump TVBoxWeb to v1.9.3
 
 ---
 **修复**：
 
-- 修复登录后网盘视频播不了——video 请求带不了 Cookie，改为登录下发媒体令牌走 URL；令牌仅限 /api/proxy 与 /api/remux
+- 修复网盘播放用的 Basic Auth 改由服务端按源 id 下发（列表接口密码是掩码，前端拼出 user:****** 导致上游 401）
+- 修复登录不再被二次 session 查询覆盖
 
 ---
 ### 🚀 github加速
