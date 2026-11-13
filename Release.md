@@ -1,17 +1,14 @@
-# Release v0.0.42
+# Release v0.1.0
 
-## 🐛 修复
-- 播放界面五轮排查：修复自动画质被锁死、无扩展名文件不做转封装兜底的问题（上游 [e44d8f1](https://github.com/xxl6097/TVBoxWeb/commit/e44d8f1)）
+## ✨ 新特性
+- 跳过片头片尾改为按剧生效，不再一套全局值套用所有剧集（上游 [67e1857](https://github.com/xxl6097/TVBoxWeb/commit/67e1857)）
 
 ## 📦 依赖变更
-- 升级 xxl6097/TVBoxWeb：v1.11.7 → v1.11.8
-- 上游修复了自动画质锁定与无扩展名文件的转封装兜底逻辑，改善播放兼容性
-
-## 🔧 其他
-- Release.md 改为省略无内容分类，发布流程文档 push.md 同步该规则（8085fac）
+- 升级 xxl6097/TVBoxWeb：v1.11.8 → v1.11.9
+- 上游新增按剧生效的跳过片头片尾能力，提升不同剧集的播放体验
 
 ## 🔗 完整变更
-https://github.com/xxl6097/TVWeb/compare/v0.0.41...v0.0.42
+https://github.com/xxl6097/TVWeb/compare/v0.0.42...v0.1.0
 
 ---
 ### 🚀 github加速

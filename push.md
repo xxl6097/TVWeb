@@ -57,7 +57,7 @@ https://github.com/<owner>/<repo>/compare/<last_tag>...<new_tag>
 
 ## 约束
 - 修改Release.md的时候，保持"github加速"部分不变
-- Release.md 只保留有内容的分类，没有内容的章节直接去掉，不要写「无」
+- Release.md只保留有内容的分类，没有内容的章节直接去掉，不要写「无」
 - 新特性和修复bug直接从上游仓库 commit/release 记录中提取本次变更内容，不需要询问用户。
 - 不要编造 commit 里没有的功能。
 - 每一步执行前把「要跑的命令」打印出来给我看一次。
