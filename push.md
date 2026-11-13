@@ -16,7 +16,7 @@
   - go mod tidy
   - git add go.mod go.sum
   - git commit -m "deps: bump xxl6097/TVBoxWeb ${CUR_VER} -> ${LATEST_VER}"
-4. 若已是最新，跳过升级，在 Release.md 里写「依赖无变更」。
+4. 若已是最新，跳过升级，Release.md 中直接省略「依赖变更」章节。
 
 ## 步骤 2：确定新版本号
 - git describe --tags --abbrev=0 取上一个 tag。
@@ -47,6 +47,8 @@
 ## 🔗 完整变更
 https://github.com/<owner>/<repo>/compare/<last_tag>...<new_tag>
 
+只输出有内容的分类：某个分类没有实际条目时，整节省略，不要写「无」。
+
 ## 步骤 4：提交 + 打 tag + 发 Release
 - 把 Release.md 写到仓库根目录（或 docs/release-notes/vX.Y.Z.md，按现有惯例）。
 - git add Release.md && git commit -m "docs: release vX.Y.Z"
@@ -55,6 +57,7 @@ https://github.com/<owner>/<repo>/compare/<last_tag>...<new_tag>
 
 ## 约束
 - 修改Release.md的时候，保持"github加速"部分不变
+- Release.md 只保留有内容的分类，没有内容的章节直接去掉，不要写「无」
 - 新特性和修复bug直接从上游仓库 commit/release 记录中提取本次变更内容，不需要询问用户。
 - 不要编造 commit 里没有的功能。
 - 每一步执行前把「要跑的命令」打印出来给我看一次。
