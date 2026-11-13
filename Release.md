@@ -1,21 +1,19 @@
-# Release v0.0.40
+# Release v0.0.41
 
 ## ✨ 新特性
 无
 
 ## 🐛 修复
-- 播放界面三轮排查：修复竖屏视频区只占 26%、音量拖动丢手、解析失败卡住的问题 (上游 [fe339f2](https://github.com/xxl6097/TVBoxWeb/commit/fe339f2))
-- 播放界面四轮排查：修复切集串字幕、内嵌字幕没入口、关闭标签页丢播放进度的问题 (上游 [e4d1fad](https://github.com/xxl6097/TVBoxWeb/commit/e4d1fad))
+无
 
 ## 📦 依赖变更
-- 升级 xxl6097/TVBoxWeb：v1.11.5 → v1.11.7
-- 上游集中修复播放界面竖屏布局、音量拖动、解析失败卡顿、字幕切换与内嵌字幕入口、播放进度丢失等问题，提升播放体验
+- xxl6097/TVBoxWeb: v1.11.7（依赖无变更，已是最新版本）
 
 ## 🔧 其他
-- 更新发布流程文档 push.md，明确依赖探测、版本判定与发布约束
+- CI 触发规则调整：`Build and Test` 不再随 `main`/`develop` 分支推送触发，仅保留 PR 检查；推送 `v*` tag 时只由 `Release` 工作流负责构建与发布（5079f53）
 
 ## 🔗 完整变更
-https://github.com/xxl6097/TVWeb/compare/v0.0.39...v0.0.40
+https://github.com/xxl6097/TVWeb/compare/v0.0.40...v0.0.41
 
 ---
 ### 🚀 github加速
