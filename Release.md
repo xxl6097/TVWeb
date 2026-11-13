@@ -1,10 +1,17 @@
-# Release v0.0.41
+# Release v0.0.42
+
+## 🐛 修复
+- 播放界面五轮排查：修复自动画质被锁死、无扩展名文件不做转封装兜底的问题（上游 [e44d8f1](https://github.com/xxl6097/TVBoxWeb/commit/e44d8f1)）
+
+## 📦 依赖变更
+- 升级 xxl6097/TVBoxWeb：v1.11.7 → v1.11.8
+- 上游修复了自动画质锁定与无扩展名文件的转封装兜底逻辑，改善播放兼容性
 
 ## 🔧 其他
-- CI 触发规则调整：`Build and Test` 不再随 `main`/`develop` 分支推送触发，仅保留 PR 检查；推送 `v*` tag 时只由 `Release` 工作流负责构建与发布（5079f53）
+- Release.md 改为省略无内容分类，发布流程文档 push.md 同步该规则（8085fac）
 
 ## 🔗 完整变更
-https://github.com/xxl6097/TVWeb/compare/v0.0.40...v0.0.41
+https://github.com/xxl6097/TVWeb/compare/v0.0.41...v0.0.42
 
 ---
 ### 🚀 github加速
