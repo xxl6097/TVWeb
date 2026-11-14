@@ -1,14 +1,14 @@
-# Release v0.1.0
+# Release v0.1.1
 
-## ✨ 新特性
-- 跳过片头片尾改为按剧生效，不再一套全局值套用所有剧集（上游 [67e1857](https://github.com/xxl6097/TVBoxWeb/commit/67e1857)）
+## 🐛 修复
+- 跳过片头片尾在手机上藏在面板底部，挪到画质后面并合成两行，避免被遮挡（上游 [02e0073](https://github.com/xxl6097/TVBoxWeb/commit/02e0073)）
 
 ## 📦 依赖变更
-- 升级 xxl6097/TVBoxWeb：v1.11.8 → v1.11.9
-- 上游新增按剧生效的跳过片头片尾能力，提升不同剧集的播放体验
+- 升级 xxl6097/TVBoxWeb：v1.11.9 → v1.12.0
+- 上游调整跳过片头片尾设置的位置与布局，改善手机端面板交互
 
 ## 🔗 完整变更
-https://github.com/xxl6097/TVWeb/compare/v0.0.42...v0.1.0
+https://github.com/xxl6097/TVWeb/compare/v0.1.0...v0.1.1
 
 ---
 ### 🚀 github加速
