@@ -1,17 +1,14 @@
-# Release v0.2.0
+# Release v0.3.0
 
 ## ✨ 新特性
-- 跳过片头片尾改成分段控件，播放控制按钮从 25px 放大到 44px，提升手机端可操作性（上游 [a72e4b3](https://github.com/xxl6097/TVBoxWeb/commit/a72e4b3)）
-
-## 🐛 修复
-- 继续观看功能：当前播放源失效时不再是死路，改成标记失效+换源搜索，提升容错能力（上游 [333b792](https://github.com/xxl6097/TVBoxWeb/commit/333b792)）
+- 失效源站自动换源并续上原进度，提升播放连贯性与容错能力（上游 [7f0b406](https://github.com/xxl6097/TVBoxWeb/commit/7f0b406)）
 
 ## 📦 依赖变更
-- 升级 xxl6097/TVBoxWeb：v1.12.0 → v1.12.2
-- 上游重构跳过片头片尾交互与继续观看源站容错机制，提升播放体验与鲁棒性
+- 升级 xxl6097/TVBoxWeb：v1.12.2 → v1.13.0
+- 上游新增失效源站的自动换源与进度续接能力，优化用户播放体验
 
 ## 🔗 完整变更
-https://github.com/xxl6097/TVWeb/compare/v0.1.1...v0.2.0
+https://github.com/xxl6097/TVWeb/compare/v0.2.0...v0.3.0
 
 ---
 ### 🚀 github加速
